@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31829.152
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milos_Bencek_technical_challenge_02122021", "Milos_Bencek_technical_challenge_02122021\Milos_Bencek_technical_challenge_02122021.csproj", "{9B61160D-12DD-414D-993D-EA6EDE621845}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9B61160D-12DD-414D-993D-EA6EDE621845}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B61160D-12DD-414D-993D-EA6EDE621845}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B61160D-12DD-414D-993D-EA6EDE621845}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B61160D-12DD-414D-993D-EA6EDE621845}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2F9D379D-EAF5-451F-8277-E901F6F11D6A}
+	EndGlobalSection
+EndGlobal
