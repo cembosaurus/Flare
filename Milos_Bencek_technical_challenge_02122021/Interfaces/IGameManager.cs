@@ -6,7 +6,7 @@
         bool Lost { get; }
 
         IServiceResult Hit(char xChar, int y);
-        IServiceResult IsLost();
+        IServiceResult IsGameLost();
         IServiceResult Start();
     }
 }

@@ -1,5 +1,8 @@
-﻿using Milos_Bencek_technical_challenge_02122021.Entities;
+﻿using FluentValidation.Results;
+using Milos_Bencek_technical_challenge_02122021.Entities;
 using Milos_Bencek_technical_challenge_02122021.Interfaces;
+using Milos_Bencek_technical_challenge_02122021.Models;
+using Milos_Bencek_technical_challenge_02122021.Validation;
 using System.Collections.Generic;
 
 namespace Milos_Bencek_technical_challenge_02122021.Services
@@ -9,7 +12,7 @@ namespace Milos_Bencek_technical_challenge_02122021.Services
 
         private IServiceParameters<Position> _parameters;
         private List<IShip> _ships;
-        private readonly Board _board;
+        private readonly IBoard _board;
         private bool _gameInProgress;
         private bool _lost;
 
@@ -38,13 +41,13 @@ namespace Milos_Bencek_technical_challenge_02122021.Services
 
 
 
-        public IServiceResult PlaceShipOnBoard(IShip ship, char xChar, int y, bool horizontal)
+        public IServiceResult<ValidationResult> PlaceShipOnBoard(IShip ship, char xChar, int y, bool horizontal)
         {
             // Converting letter to number in coordinates. F.e: 'B,7' to '2,7'
-            var x = Service.Get.PositionCharToInt(xChar);
+            var x = GameServices.Service.PositionCharToInt(xChar);
 
             // Calculating end position coordinates based on direction and size of ship:
-            var endCoordinates = Service.Get.DirectionToCoordinates(x, y, horizontal, ship.Body.Length);
+            var endCoordinates = GameServices.Service.DirectionToCoordinates(x, y, horizontal, ship.Body.Length);
 
             // Crteating 'Position' model for validation for validation request:
             _parameters.Data = new Position
@@ -57,20 +60,24 @@ namespace Milos_Bencek_technical_challenge_02122021.Services
             };
 
             // Validate ship position, size and direction before placed on board:
-            var validationResult = Validator.Validate.Position(_parameters);
+            var validationResult = PositionValidator.Position.Validate(_parameters.Data);
 
-            if (validationResult.Status)
+            // Get indexes of ship position on board:
+            var shipIndexes = GameServices.Service.PositionsToIndexes
+                (
+                _parameters.Data.startX, 
+                _parameters.Data.startY, 
+                _parameters.Data.endX, 
+                _parameters.Data.endY, 
+                _parameters.Data.Board.SizeX
+                );
+
+            // Does ship overlap another ship on board?:
+            var isColidingWithAnotherShip = GameServices.Service.DoesOverlapAnotherShip(shipIndexes, _parameters.Data.Board);
+
+
+            if (validationResult.IsValid && !isColidingWithAnotherShip)
             {
-                // 'shipIndexes' contain indexes of board array at which ship will be placed:
-                var shipIndexes = Service.Get.PositionsToIndexes
-                    (
-                    _parameters.Data.startX,
-                    _parameters.Data.startY,
-                    _parameters.Data.endX,
-                    _parameters.Data.endY,
-                    _parameters.Data.Board.SizeX
-                    );
-
                 // Temporary variable for looping:
                 int index = 0;
 
@@ -83,10 +90,12 @@ namespace Milos_Bencek_technical_challenge_02122021.Services
 
                 // Add ship into list of active ships:
                 _ships.Add(ship);
+
+                return new ServiceResult<ValidationResult>(validationResult, true, "Success!");
             }
 
 
-            return validationResult;
+            return new ServiceResult<ValidationResult>(validationResult, false, "Fail!");
         }
 
 
@@ -95,10 +104,10 @@ namespace Milos_Bencek_technical_challenge_02122021.Services
         public IServiceResult Hit(char xChar, int y)
         {
             // Converting letter in coordinates to number. F.e: 'B,7' to '2,7'
-            var x = Service.Get.PositionCharToInt(xChar);
+            var x = GameServices.Service.PositionCharToInt(xChar);
 
             // Convert attacked X,Y position to board index:
-            var index = Service.Get.PositionToIndex(x, y, _board.SizeX);
+            var index = GameServices.Service.PositionToIndex(x, y, _board.SizeX);
 
             // Identify related Square on board:
             var square = _board.Grid[index];
@@ -110,7 +119,7 @@ namespace Milos_Bencek_technical_challenge_02122021.Services
                 square.State = false;
 
                 // Indication whether there is any remaining ships after hit:
-                _lost = !Service.Get.ShipsExist(_ships);
+                _lost = !GameServices.Service.ShipsExist(_ships);
 
                 var message = _lost ? "  - Last ship was sunk. Game is lost!" : "";
 
@@ -134,18 +143,17 @@ namespace Milos_Bencek_technical_challenge_02122021.Services
                     return new ServiceResult(_gameInProgress, "Game has started. Game content can't be changed!");
                 }
 
-                _gameInProgress = false;
                 return new ServiceResult(_gameInProgress, "Place at least one ship before you start game!");
             }
 
 
-            return new ServiceResult(_gameInProgress, "Game is already in progress!");
+            return new ServiceResult(!_gameInProgress, "Game is already in progress!");
         }
 
 
 
         // Indicating whether game is lost or not:
-        public IServiceResult IsLost()
+        public IServiceResult IsGameLost()
         {
             return _lost ? new ServiceResult(true, "Game is lost!") : new ServiceResult(false, "Game is not lost yet!");
         }

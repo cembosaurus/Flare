@@ -4,15 +4,16 @@ using System.Collections.Generic;
 
 namespace Milos_Bencek_technical_challenge_02122021.Services
 {
-    public sealed class Service
+    public sealed class GameServices : IGameServices
     {
 
-        private static readonly Service _services = new Service();
+        private static readonly GameServices _services = new GameServices();
 
-        static Service() { }
-        private Service() { }
+        static GameServices() { }
+        private GameServices() { }
 
-        public static Service Get => _services;
+        public static GameServices Service => _services;
+
 
 
         // Converts X,Y position to index on board:
@@ -23,9 +24,9 @@ namespace Milos_Bencek_technical_challenge_02122021.Services
 
 
         // Converts index on board to X,Y position:
-        public static Tuple<int, int> IndexToPosition(int index, int sizeX)
+        public Tuple<int, int> IndexToPosition(int index, int sizeX)
         {
-            int x = index - (index / sizeX) * sizeX - 1;
+            int x = index - (index / sizeX) * sizeX + 1;
             int y = index / sizeX + 1;
 
             return new Tuple<int, int>(x, y);
@@ -44,7 +45,6 @@ namespace Milos_Bencek_technical_challenge_02122021.Services
 
             return 0;
         }
-
 
 
         // Calculating end X,Y position based on start X,Y position, direction (horizontal/vertical) and size of ship:
@@ -102,6 +102,21 @@ namespace Milos_Bencek_technical_challenge_02122021.Services
             foreach (IShip s in ships)
                 if (s.State == true)
                     return true;
+
+            return false;
+        }
+
+
+        // Test whether new ship overlaps another ship on board:
+        public bool DoesOverlapAnotherShip(int[] indexes, IBoard board)
+        {
+            // Check whether indexes on board allocated for ship are available:
+            foreach (int i in indexes)
+            {
+                // Identify whether board index allocated for ship is not occupied by another ship:
+                if (board.Grid[i].State)
+                    return true;
+            }
 
             return false;
         }

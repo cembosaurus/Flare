@@ -21,10 +21,6 @@ namespace Milos_Bencek_technical_challenge_02122021.Services
 
         public T Data => _data;
 
-        public new bool Status => _status;
-
-        public new string Message => _message;
-
     }
 
 
@@ -46,7 +42,6 @@ namespace Milos_Bencek_technical_challenge_02122021.Services
         public bool Status => _status;
 
         public string Message => _message;
-
 
     }
 }

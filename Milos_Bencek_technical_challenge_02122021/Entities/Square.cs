@@ -2,7 +2,7 @@
 {
     public class Square
     {
-        // Represents elemental part o fship's body:
+        // Represents elemental part of ship's body:
         public bool State;
     }
 }
